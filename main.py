@@ -30,6 +30,7 @@ df['IsAlone'] = df['FamilySize'].apply(is_alone)
 
 
 df['FareGroup'] = pd.qcut(df['Fare'], q=4, labels=[1, 2, 3, 4])
+df['FareGroup'] = df['FareGroup'].astype(int)
 
 def family_group(size):
     if size == 1:
