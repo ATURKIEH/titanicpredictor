@@ -6,14 +6,16 @@ def load_model(model_path):
     model = pickle.load(open(model_path, 'rb'))
     scaler = pickle.load(open('scaler.pkl', 'rb'))
     feature_columns = pickle.load(open('feature_columns.pkl', 'rb'))
-    return model, scaler, feature_columns
+    features_median = pickle.load(open('features_median.pkl', 'rb'))
+    return model, scaler, feature_columns, features_median
 
 def predict(input_data):
-    model, scaler, feature_columns = load_model('model.pkl')
-    
+    model, scaler, feature_columns, features_median = load_model('model.pkl')
+
     data = input_data.copy()
     df = pd.DataFrame([data])
-    df = df.reindex(columns=feature_columns, fill_value=0)
+    df = df.reindex(columns=feature_columns)
+    df = df.fillna(features_median)
 
     scaled = scaler.transform(df)
     prediction = model.predict(scaled)[0] 
@@ -24,22 +26,4 @@ def predict(input_data):
         'result':      'Survived' if prediction == 1 else 'Did not survive'
     }
 
-if __name__ == "__main__":
-    sample = {
-    'Sex':            1,
-    'Pclass':         1,
-    'Embarked':       0,  
-    'IsAlone':        1,
-    'FareGroup':      4,
-    'FamilyGroup':    1,
-    'Age_Child':      0,
-    'Age_Teenager':   0,
-    'Age_YoungAdult': 1,
-    'Age_MiddleAge':  0,
-    'Age_Elderly':    0,
-}
 
-    result = predict(sample)
-    print(f"Survived:    {result['survived']}")
-    print(f"Probability: {result['probability']}")
-    print(f"Result:      {result['result']}")
